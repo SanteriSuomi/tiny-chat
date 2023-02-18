@@ -33,7 +33,7 @@ router.delete('/delete', async (req, res) => {
     }
 })
 
-router.put('/join', async (req, res) => {
+router.put('/participate', async (req, res) => {
     try {
         const { user, id } = req.body
         const room = await Room.findOne({ _id: id })

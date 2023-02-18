@@ -2,8 +2,9 @@ import express from 'express'
 import http from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
-import usersRouter from "./routes/users"
-import roomsRouter from "./routes/rooms"
+import usersRouter from './routes/users'
+import roomsRouter from './routes/rooms'
+import roomsSocket from './sockets/rooms'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -29,9 +30,7 @@ async function main() {
     app.use('/rooms', roomsRouter)
 
     io.on('connection', (socket) => {
-        socket.on("join", (msg) => {
-            console.log(msg)
-        })
+        roomsSocket(socket)
     })
 
     server.listen(process.env.PORT, () => {
