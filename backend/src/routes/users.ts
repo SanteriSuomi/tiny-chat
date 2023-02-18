@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
         if (!(await compare(password, user.passwordHash))) {
             return res.status(403).json({ msg: "Password incorrect" })
         }
-        const accessToken = sign({ name: user.name, passwordHash: user.passwordHash }, "tokensecret");
+        const accessToken = sign({ name: user.name, passwordHash: user.passwordHash }, process.env.JWT_SECRET!);
         res.status(200).json({ msg: "User logged in", content: accessToken })
     } catch (error) {
         res.status(500).json({ msg: (error as Error).message })

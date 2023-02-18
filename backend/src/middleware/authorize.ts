@@ -6,7 +6,7 @@ function authorize(req: Request, res: Response, next: NextFunction) {
     if (!authorization) {
         return res.status(401).json({ msg: 'No authorization header' })
     }
-    verify(authorization, 'tokensecret', (err, user) => {
+    verify(authorization, process.env.JWT_SECRET!, (err, user) => {
         if (err) {
             return res.status(403).json('Token is not valid')
         }

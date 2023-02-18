@@ -4,7 +4,9 @@ import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 import usersRouter from "./routes/users"
 import roomsRouter from "./routes/rooms"
+import dotenv from 'dotenv'
 
+dotenv.config()
 mongoose.set('strictQuery', false)
 
 const app = express()
@@ -16,10 +18,8 @@ app.use(express.urlencoded({
 const server = http.createServer(app)
 const io = new Server(server, { serveClient: false })
 
-const port = 3000;
-
 async function main() {
-    await mongoose.connect('mongodb://127.0.0.1:27017/tiny-chat');
+    await mongoose.connect(process.env.DB_CONNECTION_STRING!);
 
     app.get('*', (_, res) => {
         res.status(404).json({ msg: "Not found" })
@@ -34,8 +34,8 @@ async function main() {
         })
     })
 
-    server.listen(port, () => {
-        console.log(`App listening on port ${port}`)
+    server.listen(process.env.PORT, () => {
+        console.log(`App listening on port ${process.env.PORT}`)
     });
 }
 
