@@ -3,6 +3,7 @@ import http from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 import usersRouter from "./routes/users"
+import roomsRouter from "./routes/rooms"
 
 mongoose.set('strictQuery', false)
 
@@ -25,6 +26,8 @@ async function main() {
     });
 
     app.use('/users', usersRouter)
+
+    app.use('/rooms', roomsRouter)
 
     io.on('connection', (socket) => {
         socket.on("join", (msg) => {
