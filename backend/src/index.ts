@@ -7,6 +7,11 @@ import usersRouter from "./routes/users"
 mongoose.set('strictQuery', false)
 
 const app = express()
+app.use(express.json());
+app.use(express.urlencoded({
+    extended: true
+}));
+
 const server = http.createServer(app)
 const io = new Server(server, { serveClient: false })
 
@@ -19,7 +24,7 @@ async function main() {
         res.status(404).json({ msg: "Not found" })
     });
 
-    app.use(usersRouter)
+    app.use('/users', usersRouter)
 
     io.on('connection', (socket) => {
         socket.on("join", (msg) => {
