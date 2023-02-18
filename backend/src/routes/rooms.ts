@@ -24,10 +24,28 @@ router.delete('/delete', async (req, res) => {
     try {
         const { user, id } = req.body
         const room = await Room.findOneAndDelete({ _id: id, owner: user.name })
-        if (room) {
-            return res.status(200).json({ msg: "Room deleted" })
+        if (!room) {
+            return res.status(400).json({ msg: "Nothing to delete" })
         }
-        res.status(400).json({ msg: "Nothing to delete" })
+        res.status(200).json({ msg: "Room deleted" })
+    } catch (error) {
+        res.status(500).json({ msg: (error as Error).message })
+    }
+})
+
+router.put('/join', async (req, res) => {
+    try {
+        const { user, id } = req.body
+        const room = await Room.findOne({ _id: id })
+        if (!room) {
+            return res.status(404).json({ msg: "Room not found" })
+        }
+        if (room.participants.includes(user.name)) {
+            return res.status(406).json({ msg: "User already in room" })
+        }
+        room.participants.push(user.name)
+        await room.save();
+        res.status(202).json({ msg: "Room joined" })
     } catch (error) {
         res.status(500).json({ msg: (error as Error).message })
     }
