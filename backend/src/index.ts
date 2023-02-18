@@ -20,7 +20,7 @@ const port = 3000;
 async function main() {
     await mongoose.connect('mongodb://127.0.0.1:27017/tiny-chat');
 
-    app.get('*', (req, res) => {
+    app.get('*', (_, res) => {
         res.status(404).json({ msg: "Not found" })
     });
 
