@@ -26,7 +26,6 @@ async function main() {
     });
 
     app.use('/users', usersRouter)
-
     app.use('/rooms', roomsRouter)
 
     io.on('connection', (socket) => {

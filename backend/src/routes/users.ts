@@ -19,7 +19,7 @@ router.post('/register', async (req, res) => {
         user = new User({ name: name, passwordHash: passwordHash })
         await user.save();
     } catch (error) {
-        return res.status(500).json({ msg: (error as Error)?.message })
+        return res.status(500).json({ msg: (error as Error).message })
     }
     res.status(201).json({ msg: "New user registered" })
 })
@@ -41,7 +41,7 @@ router.post('/login', async (req, res) => {
         const accessToken = sign({ name: user.name, passwordHash: user.passwordHash }, "tokensecret");
         res.status(200).json({ msg: "User logged in", content: accessToken })
     } catch (error) {
-        res.status(500).json({ msg: (error as Error)?.message })
+        res.status(500).json({ msg: (error as Error).message })
     }
 })
 
