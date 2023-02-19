@@ -8,10 +8,11 @@ import {
     Input,
     useToast,
 } from '@chakra-ui/react'
-import { UserData } from '../types/user'
+import { UserData } from '../../types/user'
 import { useEffect, useState } from 'react'
-import { RoomType } from '../types/room'
-import Room from '../components/Room'
+import { RoomType } from '../../types/room'
+import Room from '../../components/Room'
+import RoomScreen from './Room'
 
 interface MainProps {
     userData: UserData
@@ -26,6 +27,7 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
         owned: RoomType[]
         participant: RoomType[]
     }>()
+    const [activeRoom, setActiveRoom] = useState<RoomType | undefined>()
 
     const retrieveRooms = async () => {
         const response = await fetch(
@@ -64,25 +66,12 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
         })
     }
 
-    useEffect(() => {
-        retrieveRooms()
-    }, [])
-
-    return (
-        <Flex direction="column" width="80vw" height="70vh">
-            <Stack>
-                <Flex alignItems="center" justifyContent="space-between">
-                    <Heading size="md">Welcome to Tiny Chat!</Heading>
-                    <Flex alignItems="center">
-                        <Text mr={4} fontSize="xl">
-                            {userData.name}
-                        </Text>
-                        <Button colorScheme="teal" size="sm" onClick={logout}>
-                            Log out
-                        </Button>
-                    </Flex>
-                </Flex>
-                <Divider orientation="horizontal"></Divider>
+    const getScreen = () => {
+        if (activeRoom) {
+            return <RoomScreen room={activeRoom}></RoomScreen>
+        }
+        return (
+            <Stack pt={3}>
                 <Flex alignItems="center">
                     <Text fontSize="xl" mr={6}>
                         Rooms
@@ -104,13 +93,47 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
                 </Flex>
                 <Stack pt={3}>
                     {rooms?.owned.map((room) => {
-                        return <Room key={room._id} room={room}></Room>
+                        return (
+                            <Room
+                                key={room._id}
+                                room={room}
+                                setActiveRoom={setActiveRoom}
+                            ></Room>
+                        )
                     })}
                     {rooms?.participant.map((room) => {
-                        return <Room key={room._id} room={room}></Room>
+                        return (
+                            <Room
+                                key={room._id}
+                                room={room}
+                                setActiveRoom={setActiveRoom}
+                            ></Room>
+                        )
                     })}
                 </Stack>
             </Stack>
+        )
+    }
+
+    useEffect(() => {
+        retrieveRooms()
+    }, [])
+
+    return (
+        <Flex direction="column" width="80vw" height="70vh">
+            <Flex alignItems="center" justifyContent="space-between">
+                <Heading size="md">Welcome to Tiny Chat!</Heading>
+                <Flex alignItems="center">
+                    <Text mr={4} fontSize="xl">
+                        {userData.name}
+                    </Text>
+                    <Button colorScheme="teal" size="sm" onClick={logout}>
+                        Log out
+                    </Button>
+                </Flex>
+            </Flex>
+            <Divider orientation="horizontal" pt={3}></Divider>
+            {getScreen()}
         </Flex>
     )
 }

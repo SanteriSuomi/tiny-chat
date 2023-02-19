@@ -8,7 +8,7 @@ import {
 import { useState, useEffect } from 'react'
 import Login from './screens/Login'
 import Register from './screens/Register'
-import Main from './screens/Main'
+import Main from './screens/main/Main'
 import { UserData } from './types/user'
 
 function App() {
