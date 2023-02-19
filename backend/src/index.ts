@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import http from 'http'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({
     extended: true
 }));
+app.use(cors())
 
 const server = http.createServer(app)
 const io = new Server(server, { serveClient: false })
