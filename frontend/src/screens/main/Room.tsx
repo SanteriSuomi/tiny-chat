@@ -78,7 +78,7 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                 </Flex>
                 <Flex alignItems="center" justifyContent="center" mt={4}>
                     <Textarea
-                        maxWidth={300}
+                        maxWidth={250}
                         variant="filled"
                         resize="none"
                     ></Textarea>

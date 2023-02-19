@@ -4,6 +4,7 @@ import {
     useColorMode,
     useColorModeValue,
     Spinner,
+    useToast,
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import Login from './screens/Login'
@@ -14,6 +15,7 @@ import { UserData } from './types/user'
 function App() {
     const { toggleColorMode } = useColorMode()
     const formBackground = useColorModeValue('gray.100', 'gray.700')
+    const toast = useToast()
 
     const [screen, setScreen] = useState('')
     const [userData, setUserData] = useState<UserData | undefined>()
@@ -39,6 +41,11 @@ function App() {
         localStorage.setItem('login-data', '')
         setUserData(undefined)
         setScreen('login')
+        toast({
+            description: 'User logged out',
+            duration: 4000,
+            isClosable: true,
+        })
     }
 
     useEffect(() => {

@@ -24,7 +24,7 @@ const Message: React.FC<MessageProps> = ({ message, userData }) => {
             mt={3}
         >
             <Text fontSize="smaller" pr={2}>
-                {message.message}{' '}
+                {message.message}
             </Text>
             <Text fontSize="2xs" color="black" alignSelf="flex-end">
                 {message.sender_name}
