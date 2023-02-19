@@ -1,15 +1,16 @@
 interface RoomEnterEvent {
-    name: string;
+    name: string
 }
 
 interface RoomLeaveEvent {
-    name: string;
+    name: string
 }
 
 interface RoomMessageEvent {
-    sender: string;
-    message: string;
-    timestamp: number;
+    sender_id: string
+    sender_name: string
+    message: string
+    timestamp: number
 }
 
 export {

@@ -1,7 +1,11 @@
 import mongoose from 'mongoose'
 
 const messageSchema = new mongoose.Schema({
-    sender: {
+    sender_id: {
+        type: String,
+        required: true
+    },
+    sender_name: {
         type: String,
         required: true
     },

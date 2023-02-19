@@ -16,10 +16,7 @@ function App() {
     const formBackground = useColorModeValue('gray.100', 'gray.700')
 
     const [screen, setScreen] = useState('')
-    const [userData, setUserData] = useState<UserData>({
-        token: '',
-        name: '',
-    })
+    const [userData, setUserData] = useState<UserData | undefined>()
 
     const authenticate = async (data: UserData) => {
         const response = await fetch(
@@ -40,7 +37,7 @@ function App() {
 
     const logout = () => {
         localStorage.setItem('login-data', '')
-        setUserData({ token: '', name: '' })
+        setUserData(undefined)
         setScreen('login')
     }
 
@@ -61,7 +58,7 @@ function App() {
     }, [])
 
     useEffect(() => {
-        if (userData.token.length > 0) {
+        if (userData && userData.token.length > 0) {
             setScreen('main')
         }
     }, [userData])
@@ -85,7 +82,7 @@ function App() {
             )
         } else if (screen === 'register') {
             return <Register setScreen={setScreen}></Register>
-        } else if (screen === 'main') {
+        } else if (screen === 'main' && userData) {
             return <Main userData={userData} logout={logout}></Main>
         }
         return <Spinner size="lg"></Spinner>

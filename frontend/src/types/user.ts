@@ -1,6 +1,7 @@
 interface UserData {
-    token: string;
+    id: string
     name: string
+    token: string
 }
 
 export type {

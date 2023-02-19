@@ -68,7 +68,13 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
 
     const getScreen = () => {
         if (activeRoom) {
-            return <RoomScreen room={activeRoom}></RoomScreen>
+            return (
+                <RoomScreen
+                    room={activeRoom}
+                    userData={userData}
+                    setActiveRoom={setActiveRoom}
+                ></RoomScreen>
+            )
         }
         return (
             <Stack pt={3}>
@@ -92,6 +98,7 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
                     </Button>
                 </Flex>
                 <Stack pt={3}>
+                    <Text>Owned Rooms</Text>
                     {rooms?.owned.map((room) => {
                         return (
                             <Room
@@ -101,6 +108,7 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
                             ></Room>
                         )
                     })}
+                    <Text>Joined Rooms</Text>
                     {rooms?.participant.map((room) => {
                         return (
                             <Room
@@ -120,7 +128,7 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
     }, [])
 
     return (
-        <Flex direction="column" width="80vw" height="70vh">
+        <Flex direction="column" width="80vw" height="72vh">
             <Flex alignItems="center" justifyContent="space-between">
                 <Heading size="md">Welcome to Tiny Chat!</Heading>
                 <Flex alignItems="center">

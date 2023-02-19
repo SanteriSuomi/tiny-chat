@@ -41,8 +41,9 @@ router.post('/login', async (req, res) => {
         const accessToken = sign({ id: user._id, name: user.name, passwordHash: user.passwordHash }, process.env.JWT_SECRET!);
         res.status(200).json({
             msg: "User logged in", content: {
-                token: accessToken,
-                name: user.name
+                id: user.id,
+                name: user.name,
+                token: accessToken
             }
         })
     } catch (error) {
