@@ -22,16 +22,16 @@ const io = new Server(server, { serveClient: false })
 async function main() {
     await mongoose.connect(process.env.DB_CONNECTION_STRING!);
 
-    app.get('*', (_, res) => {
-        res.status(404).json({ msg: "Not found" })
-    });
-
     app.use('/users', usersRouter)
     app.use('/rooms', roomsRouter)
 
     io.on('connection', (socket) => {
         roomsSocket(socket)
     })
+
+    app.get('*', (_, res) => {
+        res.status(404).json({ msg: "Not found" })
+    });
 
     server.listen(process.env.PORT, () => {
         console.log(`App listening on port ${process.env.PORT}`)

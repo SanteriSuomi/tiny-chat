@@ -18,7 +18,7 @@ router.post('/register', async (req, res) => {
         const passwordHash = await hash(password, 10)
         user = new User({ name: name, passwordHash: passwordHash })
         await user.save();
-        res.status(201).json({ msg: "User registered" })
+        res.status(201).json({ msg: "User registered", content: user })
     } catch (error) {
         res.status(500).json({ msg: (error as Error).message })
     }

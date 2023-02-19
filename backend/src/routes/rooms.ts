@@ -5,6 +5,39 @@ import Room from '../schemas/room'
 const router = express.Router()
 router.use(authorize)
 
+router.get('/', async (req, res) => {
+    try {
+        const { user } = req.body
+        const ownedRooms = await Room.find({ owner: user.id })
+        const partRooms = await Room.find({ participants: { '$in': [user.id] } }).select('-messages')
+        res.status(200).json({
+            content: {
+                owned: ownedRooms,
+                participant: partRooms
+            }
+        })
+    } catch (error) {
+        res.status(500).json({ msg: (error as Error).message })
+    }
+})
+
+router.get('/messages', async (req, res) => {
+    try {
+        const { user } = req.body
+        const { id } = req.query
+        console.log(user)
+        const room = await Room.findOne({ _id: id, participants: { '$in': [user.id] } })
+        if (!room) {
+            return res.status(404).json({ msg: 'Not a participant in this room' })
+        }
+        res.status(200).json({
+            content: room.messages
+        })
+    } catch (error) {
+        res.status(500).json({ msg: (error as Error).message })
+    }
+})
+
 router.post('/create', async (req, res) => {
     try {
         const { user, name } = req.body
@@ -12,7 +45,7 @@ router.post('/create', async (req, res) => {
         if (room) {
             return res.status(406).json({ msg: "Can't create duplicate rooms" })
         }
-        room = new Room({ name: name, owner: user.name, participants: [user.name] })
+        room = new Room({ name: name, owner: user.id, participants: [user.id] })
         await room.save();
         res.status(201).json({ msg: "New room created", content: room })
     } catch (error) {
