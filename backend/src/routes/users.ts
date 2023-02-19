@@ -38,15 +38,15 @@ router.post('/login', async (req, res) => {
         if (!(await compare(password, user.passwordHash))) {
             return res.status(403).json({ msg: "Password incorrect" })
         }
-        const accessToken = sign({ id: user._id, name: user.name, passwordHash: user.passwordHash }, process.env.JWT_SECRET!);
+        const accessToken = sign({ id: user._id, name: user.name, passwordHash: user.passwordHash }, process.env.JWT_SECRET!, { expiresIn: '1 day' });
         res.status(200).json({ msg: "User logged in", content: accessToken })
     } catch (error) {
         res.status(500).json({ msg: (error as Error).message })
     }
 })
 
-router.get('/authorize', authorize, async (_, res) => {
-    res.status(202).json({ msg: "User authorized" })
+router.get('/token', authorize, (_, res) => {
+    res.status(202).json({ msg: "User authenticated" })
 })
 
 export default router

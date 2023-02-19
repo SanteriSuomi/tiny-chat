@@ -4,12 +4,12 @@ import { verify } from 'jsonwebtoken'
 import { RoomEnterEvent, RoomLeaveEvent, RoomMessageEvent } from '../types/events'
 
 async function onConnection(socket: any) {
-    const { authorization } = socket.handshake.headers
-    if (!authorization) {
+    const { token } = socket.handshake.headers
+    if (!token) {
         return socket.disconnect()
     }
 
-    verify(authorization, process.env.JWT_SECRET!, (err: any) => {
+    verify(token, process.env.JWT_SECRET!, (err: any) => {
         if (err) {
             return socket.disconnect()
         }
