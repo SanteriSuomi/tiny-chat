@@ -25,7 +25,6 @@ router.get('/messages', async (req, res) => {
     try {
         const { user } = req.body
         const { id } = req.query
-        console.log(user)
         const room = await Room.findOne({ _id: id, participants: { '$in': [user.id] } })
         if (!room) {
             return res.status(404).json({ msg: 'Not a participant in this room' })
