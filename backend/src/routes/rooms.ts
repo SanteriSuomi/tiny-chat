@@ -40,7 +40,7 @@ router.put('/participate', async (req, res) => {
         if (!room) {
             return res.status(404).json({ msg: "Room not found" })
         }
-        if (room.participants.includes(user.name)) {
+        if (room.participants.includes(user.id)) {
             return res.status(406).json({ msg: "User already in room" })
         }
         room.participants.push(user.name)

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 const roomSchema = new mongoose.Schema({
     name: {
@@ -10,10 +10,10 @@ const roomSchema = new mongoose.Schema({
         required: true
     },
     participants: {
-        type: [String],
+        type: [Schema.Types.ObjectId],
         required: true
     },
-    messages: [{ sender: String, message: String, timestamp: Number }]
+    messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }]
 })
 
 export default mongoose.model('Room', roomSchema, 'rooms')
