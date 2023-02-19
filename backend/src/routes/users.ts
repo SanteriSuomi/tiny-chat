@@ -2,6 +2,7 @@ import express from 'express'
 import User from '../schemas/user'
 import { hash, compare } from 'bcrypt'
 import { sign } from 'jsonwebtoken'
+import authorize from '../middleware/authorize'
 
 const router = express.Router()
 
@@ -42,6 +43,10 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         res.status(500).json({ msg: (error as Error).message })
     }
+})
+
+router.get('/authorize', authorize, async (_, res) => {
+    res.status(202).json({ msg: "User authorized" })
 })
 
 export default router
