@@ -10,7 +10,8 @@ import {
 } from '@chakra-ui/react'
 import { UserData } from '../types/user'
 import { useEffect, useState } from 'react'
-import { Room } from '../types/room'
+import { RoomType } from '../types/room'
+import Room from '../components/Room'
 
 interface MainProps {
     userData: UserData
@@ -21,7 +22,10 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
     const toast = useToast()
 
     const [roomID, setRoomID] = useState('')
-    const [rooms, setRooms] = useState<Room>()
+    const [rooms, setRooms] = useState<{
+        owned: RoomType[]
+        participant: RoomType[]
+    }>()
 
     const retrieveRooms = async () => {
         const response = await fetch(
@@ -98,7 +102,14 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
                         Join
                     </Button>
                 </Flex>
-                <Stack></Stack>
+                <Stack pt={3}>
+                    {rooms?.owned.map((room) => {
+                        return <Room key={room._id} room={room}></Room>
+                    })}
+                    {rooms?.participant.map((room) => {
+                        return <Room key={room._id} room={room}></Room>
+                    })}
+                </Stack>
             </Stack>
         </Flex>
     )
