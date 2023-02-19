@@ -75,7 +75,7 @@ router.put('/participate', async (req, res) => {
         if (room.participants.includes(user.id)) {
             return res.status(406).json({ msg: "User already in room" })
         }
-        room.participants.push(user.name)
+        room.participants.push(user.id)
         await room.save();
         res.status(202).json({ msg: "Room joined" })
     } catch (error) {

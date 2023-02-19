@@ -4,10 +4,13 @@ import {
     Divider,
     Stack,
     Button,
-    Container,
     Heading,
+    Input,
+    useToast,
 } from '@chakra-ui/react'
 import { UserData } from '../types/user'
+import { useEffect, useState } from 'react'
+import { Room } from '../types/room'
 
 interface MainProps {
     userData: UserData
@@ -15,6 +18,52 @@ interface MainProps {
 }
 
 const Main: React.FC<MainProps> = ({ userData, logout }) => {
+    const toast = useToast()
+
+    const [roomID, setRoomID] = useState('')
+    const [rooms, setRooms] = useState<Room>()
+
+    const retrieveRooms = async () => {
+        const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}rooms`,
+            {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    token: userData.token,
+                },
+            }
+        )
+        const object = await response.json()
+        setRooms(object.content)
+    }
+
+    const joinRoom = async () => {
+        const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}rooms/participate`,
+            {
+                method: 'PUT',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    token: userData.token,
+                },
+                body: JSON.stringify({ id: roomID }),
+            }
+        )
+        const object = await response.json()
+        toast({
+            description: object.msg,
+            duration: 4000,
+            isClosable: true,
+        })
+    }
+
+    useEffect(() => {
+        retrieveRooms()
+    }, [])
+
     return (
         <Flex direction="column" width="80vw" height="70vh">
             <Stack>
@@ -30,6 +79,26 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
                     </Flex>
                 </Flex>
                 <Divider orientation="horizontal"></Divider>
+                <Flex alignItems="center">
+                    <Text fontSize="xl" mr={6}>
+                        Rooms
+                    </Text>
+                    <Input
+                        placeholder="room id"
+                        variant="filled"
+                        type="text"
+                        maxWidth={210}
+                        size="sm"
+                        mr={3}
+                        onChange={(event) => {
+                            setRoomID(event.currentTarget.value)
+                        }}
+                    ></Input>
+                    <Button colorScheme="teal" size="sm" onClick={joinRoom}>
+                        Join
+                    </Button>
+                </Flex>
+                <Stack></Stack>
             </Stack>
         </Flex>
     )

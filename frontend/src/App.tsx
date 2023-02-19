@@ -51,7 +51,6 @@ function App() {
             if (data) {
                 authenticate(data).then((authenticated) => {
                     if (authenticated) {
-                        setScreen('main')
                         setUserData(data)
                     }
                 })
@@ -61,11 +60,17 @@ function App() {
         }
     }, [])
 
+    useEffect(() => {
+        if (userData.token.length > 0) {
+            setScreen('main')
+        }
+    }, [userData])
+
     const getScreen = () => {
         if (screen === 'login') {
             return (
                 <>
-                    <Login setScreen={setScreen}></Login>
+                    <Login setUserData={setUserData}></Login>
                     <Button
                         colorScheme="teal"
                         mb={6}
