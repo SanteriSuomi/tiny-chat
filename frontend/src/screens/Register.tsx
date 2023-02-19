@@ -27,7 +27,7 @@ const Register: React.FC<RegisterProps> = ({ setScreen }) => {
         const object = await response.json()
         toast({
             description: object.msg,
-            duration: 5000,
+            duration: 4000,
             isClosable: true,
         })
     }

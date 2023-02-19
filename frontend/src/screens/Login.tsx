@@ -1,7 +1,11 @@
 import { Button, Heading, Input, useToast } from '@chakra-ui/react'
 import { useState } from 'react'
 
-function Login() {
+interface LoginProps {
+    setScreen: (screen: string) => void
+}
+
+const Login: React.FC<LoginProps> = ({ setScreen }) => {
     const toast = useToast()
 
     const [username, setUsername] = useState('')
@@ -20,13 +24,14 @@ function Login() {
             }
         )
         const object = await response.json()
-        const token = object.content
-        if (token) {
-            localStorage.setItem('token', token)
+        const content = object.content
+        if (content) {
+            localStorage.setItem('login-data', JSON.stringify(content))
+            setScreen('main')
         }
         toast({
             description: object.msg,
-            duration: 5000,
+            duration: 4000,
             isClosable: true,
         })
     }
