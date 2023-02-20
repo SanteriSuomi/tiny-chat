@@ -12,6 +12,9 @@ router.post('/register', async (req, res) => {
         if (!name || !password) {
             return res.status(400).json({ msg: "Name or password empty" })
         }
+        if (name.length < 5 || password.length < 5) {
+            return res.status(400).json({ msg: "Both name and password must be 5+ characters" })
+        }
         let user = await User.findOne({ name: name })
         if (user) {
             return res.status(409).json({ msg: "User already exists" })
@@ -36,7 +39,7 @@ router.post('/login', async (req, res) => {
             return res.status(404).json({ msg: "User does not exist" })
         }
         if (!(await compare(password, user.passwordHash))) {
-            return res.status(403).json({ msg: "Password incorrect" })
+            return res.status(403).json({ msg: "Password is incorrect" })
         }
         const accessToken = sign({ id: user._id, name: user.name, passwordHash: user.passwordHash }, process.env.JWT_SECRET!);
         res.status(200).json({

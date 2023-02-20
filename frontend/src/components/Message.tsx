@@ -18,10 +18,14 @@ const Message: React.FC<MessageProps> = ({ message, userData }) => {
                     ? ownerBackground
                     : foreignBackground
             }
-            ml={message.sender_id === userData.id ? 165 : 0}
+            alignSelf={
+                message.sender_id === userData.id ? 'flex-end' : 'flex-start'
+            }
             rounded={6}
             padding={2}
             mt={3}
+            ml={3}
+            mr={3}
         >
             <Text fontSize="smaller" pr={2}>
                 {message.message}

@@ -19,7 +19,13 @@ app.use(express.urlencoded({
 app.use(cors())
 
 const server = http.createServer(app)
-const io = new Server(server, { serveClient: false })
+const io = new Server(server, {
+    serveClient: false, cors: {
+        origin: true,
+        methods: ["GET", "POST"],
+        allowedHeaders: ["token"],
+    }
+})
 
 async function main() {
     await mongoose.connect(process.env.DB_CONNECTION_STRING!);

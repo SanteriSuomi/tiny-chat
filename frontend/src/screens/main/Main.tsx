@@ -66,6 +66,10 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
         })
     }
 
+    useEffect(() => {
+        retrieveRooms()
+    }, [])
+
     const getScreen = () => {
         if (activeRoom) {
             return (
@@ -123,12 +127,8 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
         )
     }
 
-    useEffect(() => {
-        retrieveRooms()
-    }, [])
-
     return (
-        <Flex direction="column" width="80vw" height="72vh">
+        <Flex direction="column" width="80vw" height="75vh">
             <Flex alignItems="center" justifyContent="space-between">
                 <Heading size="md">Welcome to Tiny Chat!</Heading>
                 <Flex alignItems="center">

@@ -4,6 +4,12 @@ interface UserData {
     token: string
 }
 
+interface User {
+    _id: string
+    name: string
+    passwordHash: string
+}
+
 export type {
-    UserData
+    UserData, User
 }

@@ -1,10 +1,19 @@
-import { Button, Flex, IconButton, Text, Textarea } from '@chakra-ui/react'
+import {
+    Button,
+    Flex,
+    IconButton,
+    Spinner,
+    Text,
+    Textarea,
+} from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { RoomType } from '../../types/room'
-import { UserData } from '../../types/user'
+import { User, UserData } from '../../types/user'
 import { useEffect, useState } from 'react'
 import { MessageType } from '../../types/message'
+import { io } from 'socket.io-client'
 import Message from '../../components/Message'
+import Participant from '../../components/Participant'
 
 interface RoomProps {
     userData: UserData
@@ -14,6 +23,7 @@ interface RoomProps {
 
 const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
     const [messages, setMessages] = useState<MessageType[]>([])
+    const [participants, setParticipants] = useState<User[]>([])
 
     const retrieveMessages = async () => {
         const response = await fetch(
@@ -35,8 +45,33 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         }
     }
 
+    const retrieveParticipants = async () => {
+        const response = await fetch(
+            `${
+                process.env.REACT_APP_BACKEND_URL
+            }rooms/participants?${new URLSearchParams({ id: room._id })}`,
+            {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    token: userData.token,
+                },
+            }
+        )
+        const object = await response.json()
+        if (object.content) {
+            setParticipants(object.content)
+        }
+    }
+
     useEffect(() => {
         retrieveMessages()
+        retrieveParticipants()
+        const socket = io(process.env.REACT_APP_BACKEND_URL!)
+        socket.on(`${room._id}_message`, (event) => {
+            console.log(event)
+        })
     }, [])
 
     return (
@@ -56,36 +91,68 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                 </Text>
                 <Text fontSize="md">ID: {room._id}</Text>
             </Flex>
-            <Flex direction="column" alignItems="center">
-                <Flex
-                    width="40%"
-                    height={350}
-                    direction="column"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    overflowY="scroll"
-                    mt={3}
-                >
-                    {messages.map((message) => {
-                        return (
-                            <Message
-                                key={message._id}
-                                message={message}
-                                userData={userData}
-                            ></Message>
-                        )
-                    })}
-                </Flex>
-                <Flex alignItems="center" justifyContent="center" mt={4}>
-                    <Textarea
-                        maxWidth={250}
-                        variant="filled"
-                        resize="none"
-                    ></Textarea>
-                    <Button colorScheme="teal" size="sm" ml={3}>
-                        Send
-                    </Button>
-                </Flex>
+            <Flex justifyContent="center" alignItems="center">
+                {messages.length > 0 && participants.length > 0 ? (
+                    <>
+                        <Flex direction="column" alignItems="center">
+                            <Flex
+                                maxHeight={375}
+                                minWidth={275}
+                                direction="column"
+                                alignItems="flex-start"
+                                justifyContent="flex-start"
+                                overflowY="scroll"
+                                mt={3}
+                            >
+                                {messages.map((message) => {
+                                    return (
+                                        <Message
+                                            key={message._id}
+                                            message={message}
+                                            userData={userData}
+                                        ></Message>
+                                    )
+                                })}
+                            </Flex>
+                            <Flex
+                                alignItems="center"
+                                justifyContent="center"
+                                mt={4}
+                            >
+                                <Textarea
+                                    maxWidth={250}
+                                    variant="outline"
+                                    resize="none"
+                                ></Textarea>
+                                <Button colorScheme="teal" size="sm" ml={3}>
+                                    Send
+                                </Button>
+                            </Flex>
+                        </Flex>
+                        <Flex
+                            direction="column"
+                            alignItems="flex-start"
+                            justifyContent="flex-start"
+                            height="100%"
+                            ml={50}
+                        >
+                            <Text>Participants</Text>
+                            {participants
+                                .sort((a) => (a._id === room.owner ? 1 : -1))
+                                .map((participant) => {
+                                    return (
+                                        <Participant
+                                            key={participant._id}
+                                            participant={participant}
+                                            userData={userData}
+                                        ></Participant>
+                                    )
+                                })}
+                        </Flex>
+                    </>
+                ) : (
+                    <Spinner size="xl"></Spinner>
+                )}
             </Flex>
         </>
     )
