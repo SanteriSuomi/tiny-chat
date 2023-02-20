@@ -5,6 +5,7 @@ import {
     Spinner,
     Text,
     Textarea,
+    useCallbackRef,
 } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { RoomType } from '../../types/room'
@@ -24,6 +25,16 @@ interface RoomProps {
 const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
     const [messages, setMessages] = useState<MessageType[]>([])
     const [participants, setParticipants] = useState<User[]>([])
+    const [message, setMessage] = useState<MessageType | undefined>()
+
+    const onMessagesRef = useCallbackRef(
+        (node) => {
+            if (node) {
+                node.scrollTop = node.scrollHeight
+            }
+        },
+        [messages]
+    )
 
     const retrieveMessages = async () => {
         const response = await fetch(
@@ -65,14 +76,33 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         }
     }
 
+    const onMessageReceived = (message: MessageType) => {
+        setMessage(message)
+    }
+
     useEffect(() => {
         retrieveMessages()
         retrieveParticipants()
-        const socket = io(process.env.REACT_APP_BACKEND_URL!)
-        socket.on(`${room._id}_message`, (event) => {
-            console.log(event)
+        const socket = io(process.env.REACT_APP_BACKEND_URL!, {
+            transportOptions: {
+                polling: {
+                    extraHeaders: {
+                        token: userData.token,
+                    },
+                },
+            },
         })
-    }, [])
+        socket.on(`${room._id}_message`, onMessageReceived)
+        return () => {
+            socket.disconnect()
+        }
+    }, [room._id])
+
+    useEffect(() => {
+        if (message) {
+            setMessages([...messages, message])
+        }
+    }, [message])
 
     return (
         <>
@@ -97,12 +127,13 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                         <Flex direction="column" alignItems="center">
                             <Flex
                                 maxHeight={375}
-                                minWidth={275}
+                                minWidth={375}
                                 direction="column"
                                 alignItems="flex-start"
                                 justifyContent="flex-start"
                                 overflowY="scroll"
                                 mt={3}
+                                ref={onMessagesRef}
                             >
                                 {messages.map((message) => {
                                     return (

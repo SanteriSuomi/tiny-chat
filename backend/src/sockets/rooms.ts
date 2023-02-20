@@ -15,7 +15,6 @@ async function onConnection(socket: any) {
         }
 
         const roomId = socket.handshake.query['room_id'] as string
-
         try {
             const enterEvent = `${roomId}_enter`
             socket.on(enterEvent, (event: RoomEnterEvent) => {
@@ -28,9 +27,12 @@ async function onConnection(socket: any) {
             })
 
             const messageEvent = `${roomId}_message`
-            socket.on(messageEvent, (event: RoomMessageEvent) => {
-                onRoomMessage(event, roomId)
-                socket.broadcast.emit(messageEvent, event)
+            socket.on(messageEvent, async (event: RoomMessageEvent) => {
+                const id = await onRoomMessage(event, roomId)
+                if (id) {
+                    event._id = id.toString()
+                    socket.broadcast.emit(messageEvent, event)
+                }
             })
         } catch (error) {
             console.log(error)
@@ -45,7 +47,9 @@ async function onRoomMessage(event: RoomMessageEvent, roomId: string) {
         await message.save()
         room.messages.push(message._id)
         await room.save()
+        return message._id
     }
+    return null
 }
 
 export default onConnection

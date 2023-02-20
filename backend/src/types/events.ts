@@ -7,6 +7,7 @@ interface RoomLeaveEvent {
 }
 
 interface RoomMessageEvent {
+    _id: string
     sender_id: string
     sender_name: string
     message: string
