@@ -29,7 +29,7 @@ async function onConnection(socket: Socket, io: Server) {
 
             const messageEvent = `${roomId}_message`
             socket.on(messageEvent, async (event: RoomMessageEvent, callback) => {
-                const id = await onRoomMessage(event, roomId)
+                const id = await saveRoomMessage(event, roomId)
                 if (id) {
                     event._id = id.toString()
                     io.sockets.emit(messageEvent, event)
@@ -43,7 +43,7 @@ async function onConnection(socket: Socket, io: Server) {
     })
 }
 
-async function onRoomMessage(event: RoomMessageEvent, roomId: string) {
+async function saveRoomMessage(event: RoomMessageEvent, roomId: string) {
     const room = await Room.findOne({ _id: roomId })
     if (room) {
         const message = new Message(event)
