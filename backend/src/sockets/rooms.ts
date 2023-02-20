@@ -33,9 +33,9 @@ async function onConnection(socket: Socket, io: Server) {
                 if (id) {
                     event._id = id.toString()
                     io.sockets.emit(messageEvent, event)
-                    return callback("Message sent");
+                    return callback?.("Message sent");
                 }
-                callback("Message not sent");
+                callback?.("Message not sent");
             })
         } catch (error) {
             console.log(error)
