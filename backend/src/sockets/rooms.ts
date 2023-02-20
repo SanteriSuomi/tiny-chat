@@ -1,15 +1,16 @@
 import Room from '../schemas/room'
 import Message from '../schemas/message'
+import { Socket, Server } from "socket.io"
 import { verify } from 'jsonwebtoken'
 import { RoomEnterEvent, RoomLeaveEvent, RoomMessageEvent } from '../types/events'
 
-async function onConnection(socket: any) {
+async function onConnection(socket: Socket, io: Server) {
     const { token } = socket.handshake.headers
     if (!token) {
         return socket.disconnect()
     }
 
-    verify(token, process.env.JWT_SECRET!, (err: any) => {
+    verify(token as string, process.env.JWT_SECRET!, (err: any) => {
         if (err) {
             return socket.disconnect()
         }
@@ -27,12 +28,14 @@ async function onConnection(socket: any) {
             })
 
             const messageEvent = `${roomId}_message`
-            socket.on(messageEvent, async (event: RoomMessageEvent) => {
+            socket.on(messageEvent, async (event: RoomMessageEvent, callback) => {
                 const id = await onRoomMessage(event, roomId)
                 if (id) {
                     event._id = id.toString()
-                    socket.broadcast.emit(messageEvent, event)
+                    io.sockets.emit(messageEvent, event)
+                    return callback("Message sent");
                 }
+                callback("Message not sent");
             })
         } catch (error) {
             console.log(error)

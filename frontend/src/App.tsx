@@ -45,6 +45,7 @@ function App() {
             description: 'User logged out',
             duration: 4000,
             isClosable: true,
+            position: 'bottom-right',
         })
     }
 

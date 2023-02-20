@@ -63,6 +63,7 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
             description: object.msg,
             duration: 4000,
             isClosable: true,
+            position: 'bottom-right',
         })
     }
 

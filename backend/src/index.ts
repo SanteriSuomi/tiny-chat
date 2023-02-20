@@ -34,7 +34,7 @@ async function main() {
     app.use('/rooms', roomsRouter)
 
     io.on('connection', (socket) => {
-        roomsSocket(socket)
+        roomsSocket(socket, io)
     })
 
     app.get('*', (_, res) => {

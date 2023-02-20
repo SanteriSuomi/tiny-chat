@@ -6,13 +6,14 @@ import {
     Text,
     Textarea,
     useCallbackRef,
+    useToast,
 } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { RoomType } from '../../types/room'
 import { User, UserData } from '../../types/user'
 import { useEffect, useState } from 'react'
 import { MessageType } from '../../types/message'
-import { io } from 'socket.io-client'
+import { Socket, io } from 'socket.io-client'
 import Message from '../../components/Message'
 import Participant from '../../components/Participant'
 
@@ -23,9 +24,28 @@ interface RoomProps {
 }
 
 const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
+    const toast = useToast()
+
     const [messages, setMessages] = useState<MessageType[]>([])
     const [participants, setParticipants] = useState<User[]>([])
-    const [message, setMessage] = useState<MessageType | undefined>()
+    const [incomingMessage, setIncomingMessage] = useState<
+        MessageType | undefined
+    >()
+    const [localMessage, setLocalMessage] = useState('')
+    const [socket] = useState<Socket>(
+        io(process.env.REACT_APP_BACKEND_URL!, {
+            transportOptions: {
+                polling: {
+                    extraHeaders: {
+                        token: userData.token,
+                    },
+                },
+            },
+            query: {
+                room_id: room._id,
+            },
+        })
+    )
 
     const onMessagesRef = useCallbackRef(
         (node) => {
@@ -77,32 +97,35 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
     }
 
     const onMessageReceived = (message: MessageType) => {
-        setMessage(message)
+        setIncomingMessage(message)
+    }
+
+    const sendMessage = async () => {
+        const response = await socket.emitWithAck(`${room._id}_message`, {
+            sender_id: userData.id,
+            sender_name: userData.name,
+            message: localMessage,
+            timestamp: Date.now(),
+        })
+        toast({
+            description: response,
+            duration: 4000,
+            isClosable: true,
+            position: 'bottom-right',
+        })
     }
 
     useEffect(() => {
         retrieveMessages()
         retrieveParticipants()
-        const socket = io(process.env.REACT_APP_BACKEND_URL!, {
-            transportOptions: {
-                polling: {
-                    extraHeaders: {
-                        token: userData.token,
-                    },
-                },
-            },
-        })
         socket.on(`${room._id}_message`, onMessageReceived)
-        return () => {
-            socket.disconnect()
-        }
     }, [room._id])
 
     useEffect(() => {
-        if (message) {
-            setMessages([...messages, message])
+        if (incomingMessage) {
+            setMessages([...messages, incomingMessage])
         }
-    }, [message])
+    }, [incomingMessage])
 
     return (
         <>
@@ -154,8 +177,18 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                                     maxWidth={250}
                                     variant="outline"
                                     resize="none"
+                                    onChange={(event) => {
+                                        setLocalMessage(
+                                            event.currentTarget.value
+                                        )
+                                    }}
                                 ></Textarea>
-                                <Button colorScheme="teal" size="sm" ml={3}>
+                                <Button
+                                    colorScheme="teal"
+                                    size="sm"
+                                    ml={3}
+                                    onClick={sendMessage}
+                                >
                                     Send
                                 </Button>
                             </Flex>
@@ -168,17 +201,15 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                             ml={50}
                         >
                             <Text>Participants</Text>
-                            {participants
-                                .sort((a) => (a._id === room.owner ? 1 : -1))
-                                .map((participant) => {
-                                    return (
-                                        <Participant
-                                            key={participant._id}
-                                            participant={participant}
-                                            userData={userData}
-                                        ></Participant>
-                                    )
-                                })}
+                            {participants.map((participant) => {
+                                return (
+                                    <Participant
+                                        key={participant._id}
+                                        participant={participant}
+                                        userData={userData}
+                                    ></Participant>
+                                )
+                            })}
                         </Flex>
                     </>
                 ) : (

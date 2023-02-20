@@ -29,6 +29,7 @@ const Register: React.FC<RegisterProps> = ({ setScreen }) => {
             description: object.msg,
             duration: 4000,
             isClosable: true,
+            position: 'bottom-right',
         })
     }
 

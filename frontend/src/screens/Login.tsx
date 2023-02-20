@@ -34,6 +34,7 @@ const Login: React.FC<LoginProps> = ({ setUserData }) => {
             description: object.msg,
             duration: 4000,
             isClosable: true,
+            position: 'bottom-right',
         })
     }
 
