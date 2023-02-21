@@ -10,7 +10,7 @@ async function onConnection(socket: Socket, io: Server) {
         return socket.disconnect()
     }
 
-    verify(token as string, process.env.JWT_SECRET!, (err: any) => {
+    verify(token as string, process.env.JWT_SECRET!, (err) => {
         if (err) {
             return socket.disconnect()
         }

@@ -16,6 +16,7 @@ import { MessageType } from '../../types/message'
 import { Socket, io } from 'socket.io-client'
 import Message from '../../components/Message'
 import Participant from '../../components/Participant'
+import { RoomEnterEvent } from '../../types/events'
 
 interface RoomProps {
     userData: UserData
@@ -100,6 +101,17 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         setIncomingMessage(message)
     }
 
+    const onRoomEvent = (event: RoomEnterEvent, msg: string) => {
+        if (event.name !== userData.name) {
+            toast({
+                description: `${event.name} ${msg}`,
+                duration: 3000,
+                isClosable: true,
+                position: 'bottom-right',
+            })
+        }
+    }
+
     const sendMessage = async () => {
         const response = await socket.emitWithAck(`${room._id}_message`, {
             sender_id: userData.id,
@@ -119,12 +131,25 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         retrieveMessages()
         retrieveParticipants()
         socket.on(`${room._id}_message`, onMessageReceived)
+        socket.on(`${room._id}_enter`, (event) => {
+            onRoomEvent(event, 'joined the room')
+        })
+        socket.on(`${room._id}_leave`, (event) => {
+            onRoomEvent(event, 'left the room')
+        })
+        socket.emit(`${room._id}_enter`, { name: userData.name })
+        return () => {
+            socket.emit(`${room._id}_leave`, { name: userData.name })
+            socket.disconnect()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [room._id])
 
     useEffect(() => {
         if (incomingMessage) {
             setMessages([...messages, incomingMessage])
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [incomingMessage])
 
     return (
@@ -144,7 +169,7 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                 </Text>
                 <Text fontSize="md">ID: {room._id}</Text>
             </Flex>
-            <Flex justifyContent="center" alignItems="center">
+            <Flex justifyContent="center" alignItems="center" height="100%">
                 {messages.length > 0 && participants.length > 0 ? (
                     <>
                         <Flex direction="column" alignItems="center">

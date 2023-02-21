@@ -69,6 +69,7 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
 
     useEffect(() => {
         retrieveRooms()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const getScreen = () => {
