@@ -16,7 +16,7 @@ const Login: React.FC<LoginProps> = ({ setUserData }) => {
         const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}users/login`,
             {
-                method: 'POST',
+                method: 'PATCH',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',

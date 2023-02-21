@@ -1,33 +1,35 @@
 {
-	"name": "tiny-chat-backend",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"dev": "npx nodemon",
-		"build": "rimraf ./build && tsc",
-		"start": "npm run build && node build/index.js"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"devDependencies": {
-		"@types/bcrypt": "^5.0.0",
-		"@types/express": "^4.17.17",
-		"@types/jsonwebtoken": "^9.0.1",
-		"@types/node": "^18.14.0",
-		"@types/socket.io": "^3.0.2",
-		"nodemon": "^2.0.20",
-		"rimraf": "^4.1.2",
-		"ts-node": "^10.9.1",
-		"typescript": "^4.9.5"
-	},
-	"dependencies": {
-		"bcrypt": "^5.1.0",
-		"dotenv": "^16.0.3",
-		"express": "^4.18.2",
-		"jsonwebtoken": "^9.0.0",
-		"mongoose": "^6.9.2",
-		"socket.io": "^4.6.0"
-	}
+    "name": "tiny-chat-backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "npx nodemon",
+        "build": "rimraf ./build && tsc",
+        "start": "npm run build && node build/index.js",
+        "test": "mocha ./src/tests/*.spec.ts",
+        "test:watch": "mocha --watch ./src/tests/*.spec.ts"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/bcrypt": "^5.0.0",
+        "@types/express": "^4.17.17",
+        "@types/jsonwebtoken": "^9.0.1",
+        "@types/node": "^18.14.0",
+        "@types/socket.io": "^3.0.2",
+        "nodemon": "^2.0.20",
+        "rimraf": "^4.1.2",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.5"
+    },
+    "dependencies": {
+        "bcrypt": "^5.1.0",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "jsonwebtoken": "^9.0.0",
+        "mongoose": "^6.9.2",
+        "socket.io": "^4.6.0"
+    }
 }

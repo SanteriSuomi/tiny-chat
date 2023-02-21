@@ -59,6 +59,9 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
                 body: JSON.stringify({ id: roomID }),
             }
         )
+        if (response.ok) {
+            retrieveRooms()
+        }
         const object = await response.json()
         toast({
             description: object.msg,
