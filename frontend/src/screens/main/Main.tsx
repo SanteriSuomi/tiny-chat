@@ -23,6 +23,7 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
     const toast = useToast()
 
     const [roomID, setRoomID] = useState('')
+    const [roomName, setRoomName] = useState('')
     const [rooms, setRooms] = useState<{
         owned: RoomType[]
         participant: RoomType[]
@@ -67,6 +68,56 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
         })
     }
 
+    const createRoom = async () => {
+        const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}rooms/create`,
+            {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    token: userData.token,
+                },
+                body: JSON.stringify({ name: roomName }),
+            }
+        )
+        const object = await response.json()
+        toast({
+            description: object.msg,
+            duration: 4000,
+            isClosable: true,
+            position: 'bottom-right',
+        })
+        if (response.ok) {
+            retrieveRooms()
+        }
+    }
+
+    const deleteRoom = async (room: RoomType) => {
+        const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}rooms/delete`,
+            {
+                method: 'DELETE',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    token: userData.token,
+                },
+                body: JSON.stringify({ id: room._id }),
+            }
+        )
+        const object = await response.json()
+        toast({
+            description: object.msg,
+            duration: 4000,
+            isClosable: true,
+            position: 'bottom-right',
+        })
+        if (response.ok) {
+            retrieveRooms()
+        }
+    }
+
     useEffect(() => {
         retrieveRooms()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,13 +145,29 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
                         type="text"
                         maxWidth={210}
                         size="sm"
-                        mr={3}
+                        mr={1}
                         onChange={(event) => {
                             setRoomID(event.currentTarget.value)
                         }}
                     ></Input>
                     <Button colorScheme="teal" size="sm" onClick={joinRoom}>
                         Join
+                    </Button>
+
+                    <Input
+                        placeholder="room name"
+                        variant="filled"
+                        type="text"
+                        maxWidth={210}
+                        size="sm"
+                        mr={1}
+                        ml={6}
+                        onChange={(event) => {
+                            setRoomName(event.currentTarget.value)
+                        }}
+                    ></Input>
+                    <Button colorScheme="teal" size="sm" onClick={createRoom}>
+                        Create
                     </Button>
                 </Flex>
                 <Stack pt={3}>
@@ -111,6 +178,8 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
                                 key={room._id}
                                 room={room}
                                 setActiveRoom={setActiveRoom}
+                                userData={userData}
+                                deleteRoom={deleteRoom}
                             ></Room>
                         )
                     })}

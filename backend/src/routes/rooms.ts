@@ -60,9 +60,12 @@ router.get('/participants', async (req, res) => {
 router.post('/create', async (req, res) => {
     try {
         const { user, name } = req.body
+        if (name.length < 3 || name.length > 12) {
+            return res.status(400).json({ msg: "Room name length must be between 3 and 12" })
+        }
         let room = await Room.findOne({ name: name, owner: user.name })
         if (room) {
-            return res.status(406).json({ msg: "Can't create duplicate rooms" })
+            return res.status(406).json({ msg: "Room already exists" })
         }
         room = new Room({ name: name, owner: user.id, participants: [user.id] })
         await room.save();
@@ -75,7 +78,7 @@ router.post('/create', async (req, res) => {
 router.delete('/delete', async (req, res) => {
     try {
         const { user, id } = req.body
-        const room = await Room.findOneAndDelete({ _id: id, owner: user.name })
+        const room = await Room.findOneAndDelete({ _id: id, owner: user.id })
         if (!room) {
             return res.status(400).json({ msg: "Nothing to delete" })
         }

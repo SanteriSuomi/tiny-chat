@@ -71,9 +71,18 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                 },
             }
         )
+
         const object = await response.json()
-        if (object.content) {
-            setMessages(object.content)
+        const messages: MessageType[] | undefined = object.content
+        if (messages && messages.length > 0) {
+            setMessages(messages)
+        } else {
+            setMessages([
+                {
+                    message: 'No messages',
+                    timestamp: Date.now(),
+                },
+            ])
         }
     }
 
@@ -92,8 +101,9 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
             }
         )
         const object = await response.json()
-        if (object.content) {
-            setParticipants(object.content)
+        const participants: User[] | undefined = object.content
+        if (participants && participants.length > 0) {
+            setParticipants(participants)
         }
     }
 
@@ -147,7 +157,11 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
 
     useEffect(() => {
         if (incomingMessage) {
-            setMessages([...messages, incomingMessage])
+            if (messages[0].message === 'No messages') {
+                setMessages([incomingMessage])
+            } else {
+                setMessages([...messages, incomingMessage])
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [incomingMessage])
@@ -174,7 +188,7 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                     <>
                         <Flex direction="column" alignItems="center">
                             <Flex
-                                maxHeight={375}
+                                minHeight={375}
                                 minWidth={375}
                                 direction="column"
                                 alignItems="flex-start"

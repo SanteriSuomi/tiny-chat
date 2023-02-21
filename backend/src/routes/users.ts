@@ -12,8 +12,8 @@ router.post('/register', async (req, res) => {
         if (!name || !password) {
             return res.status(400).json({ msg: "Name or password empty" })
         }
-        if (name.length < 5 || password.length < 5) {
-            return res.status(400).json({ msg: "Both name and password must be 5+ characters" })
+        if (name.length < 3 || password.length < 3 || name.length > 12 || password.length > 12) {
+            return res.status(400).json({ msg: "Both name and password must be between 3 and 12 characters" })
         }
         let user = await User.findOne({ name: name })
         if (user) {
