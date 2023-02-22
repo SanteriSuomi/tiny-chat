@@ -6,9 +6,7 @@
     "scripts": {
         "dev": "npx nodemon",
         "build": "rimraf ./build && tsc",
-        "start": "npm run build && node build/index.js",
-        "test": "mocha ./src/tests/*.spec.ts",
-        "test:watch": "mocha --watch ./src/tests/*.spec.ts"
+        "start": "npm run build && node build/index.js"
     },
     "keywords": [],
     "author": "",
