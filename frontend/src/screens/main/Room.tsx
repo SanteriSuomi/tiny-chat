@@ -17,6 +17,8 @@ import { Socket, io } from 'socket.io-client'
 import Message from '../../components/Message'
 import Participant from '../../components/Participant'
 import { RoomEnterEvent } from '../../types/events'
+import fetchJson from '../../utils/fetch'
+import { infoToast } from '../../utils/toast'
 
 interface RoomProps {
     userData: UserData
@@ -27,12 +29,6 @@ interface RoomProps {
 const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
     const toast = useToast()
 
-    const [messages, setMessages] = useState<MessageType[]>([])
-    const [participants, setParticipants] = useState<User[]>([])
-    const [incomingMessage, setIncomingMessage] = useState<
-        MessageType | undefined
-    >()
-    const [localMessage, setLocalMessage] = useState('')
     const [socket] = useState<Socket>(
         io(process.env.REACT_APP_BACKEND_URL!, {
             transportOptions: {
@@ -48,6 +44,13 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         })
     )
 
+    const [messages, setMessages] = useState<MessageType[]>([])
+    const [participants, setParticipants] = useState<User[]>([])
+    const [incomingMessage, setIncomingMessage] = useState<
+        MessageType | undefined
+    >()
+    const [localMessage, setLocalMessage] = useState('')
+
     const onMessagesRef = useCallbackRef(
         (node) => {
             if (node) {
@@ -58,52 +61,43 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
     )
 
     const retrieveMessages = async () => {
-        const response = await fetch(
-            `${
-                process.env.REACT_APP_BACKEND_URL
-            }rooms/messages?${new URLSearchParams({ id: room._id })}`,
+        const obj = await fetchJson(
+            `rooms/messages?${new URLSearchParams({ id: room._id })}`,
+            'GET',
+            undefined,
             {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    token: userData.token,
-                },
+                token: userData.token,
             }
         )
-
-        const object = await response.json()
-        const messages: MessageType[] | undefined = object.content
-        if (messages && messages.length > 0) {
-            setMessages(messages)
-        } else {
-            setMessages([
-                {
-                    message: 'No messages',
-                    timestamp: Date.now(),
-                },
-            ])
+        if (obj) {
+            const messages: MessageType[] | undefined = obj.content
+            if (messages && messages.length > 0) {
+                setMessages(messages)
+            } else {
+                setMessages([
+                    {
+                        message: 'No messages',
+                        timestamp: Date.now(),
+                    },
+                ])
+            }
         }
     }
 
     const retrieveParticipants = async () => {
-        const response = await fetch(
-            `${
-                process.env.REACT_APP_BACKEND_URL
-            }rooms/participants?${new URLSearchParams({ id: room._id })}`,
+        const obj = await fetchJson(
+            `rooms/participants?${new URLSearchParams({ id: room._id })}`,
+            'GET',
+            undefined,
             {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    token: userData.token,
-                },
+                token: userData.token,
             }
         )
-        const object = await response.json()
-        const participants: User[] | undefined = object.content
-        if (participants && participants.length > 0) {
-            setParticipants(participants)
+        if (obj) {
+            const participants: User[] | undefined = obj.content
+            if (participants && participants.length > 0) {
+                setParticipants(participants)
+            }
         }
     }
 
@@ -113,12 +107,7 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
 
     const onRoomEvent = (event: RoomEnterEvent, msg: string) => {
         if (event.name !== userData.name) {
-            toast({
-                description: `${event.name} ${msg}`,
-                duration: 3000,
-                isClosable: true,
-                position: 'bottom-right',
-            })
+            infoToast(`${event.name} ${msg}`, toast)
         }
     }
 
@@ -129,17 +118,13 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
             message: localMessage,
             timestamp: Date.now(),
         })
-        toast({
-            description: response,
-            duration: 4000,
-            isClosable: true,
-            position: 'bottom-right',
-        })
+        infoToast(response, toast)
     }
 
     useEffect(() => {
         retrieveMessages()
         retrieveParticipants()
+
         socket.on(`${room._id}_message`, onMessageReceived)
         socket.on(`${room._id}_enter`, (event) => {
             onRoomEvent(event, 'joined the room')
@@ -147,7 +132,9 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         socket.on(`${room._id}_leave`, (event) => {
             onRoomEvent(event, 'left the room')
         })
+
         socket.emit(`${room._id}_enter`, { name: userData.name })
+
         return () => {
             socket.emit(`${room._id}_leave`, { name: userData.name })
             socket.disconnect()
@@ -183,13 +170,23 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                 </Text>
                 <Text fontSize="md">ID: {room._id}</Text>
             </Flex>
-            <Flex justifyContent="center" alignItems="center" height="100%">
+            <Flex
+                justifyContent="center"
+                alignItems="flex-start"
+                height="100%"
+                width="100%"
+            >
                 {messages.length > 0 && participants.length > 0 ? (
                     <>
-                        <Flex direction="column" alignItems="center">
+                        <Flex
+                            direction="column"
+                            alignItems="center"
+                            height="100%"
+                            width="100%"
+                        >
                             <Flex
-                                minHeight={375}
-                                minWidth={375}
+                                height="100%"
+                                width="75%"
                                 direction="column"
                                 alignItems="flex-start"
                                 justifyContent="flex-start"

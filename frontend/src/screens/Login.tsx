@@ -1,6 +1,7 @@
 import { Button, Heading, Input, useToast } from '@chakra-ui/react'
 import { useState } from 'react'
 import { UserData } from '../types/user'
+import fetchJson from '../utils/fetch'
 
 interface LoginProps {
     setUserData: (userData: UserData) => void
@@ -13,29 +14,18 @@ const Login: React.FC<LoginProps> = ({ setUserData }) => {
     const [password, setPassword] = useState('')
 
     const login = async () => {
-        const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}users/login`,
-            {
-                method: 'PATCH',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name: username, password: password }),
-            }
+        const obj = await fetchJson(
+            'users/login',
+            'PATCH',
+            { name: username, password: password },
+            undefined,
+            toast
         )
-        const object = await response.json()
-        const content = object.content
+        const content = obj.content
         if (content) {
             localStorage.setItem('login-data', JSON.stringify(content))
             setUserData(content)
         }
-        toast({
-            description: object.msg,
-            duration: 4000,
-            isClosable: true,
-            position: 'bottom-right',
-        })
     }
 
     return (

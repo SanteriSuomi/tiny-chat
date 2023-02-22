@@ -1,6 +1,7 @@
 import { Button, Heading, Input, IconButton, useToast } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { useState } from 'react'
+import fetchJson from '../utils/fetch'
 
 interface RegisterProps {
     setScreen: (screen: string) => void
@@ -13,24 +14,16 @@ const Register: React.FC<RegisterProps> = ({ setScreen }) => {
     const [password, setPassword] = useState('')
 
     const register = async () => {
-        const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}users/register`,
-            {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name: username, password: password }),
-            }
+        const obj = await fetchJson(
+            'users/register',
+            'POST',
+            { name: username, password: password },
+            undefined,
+            toast
         )
-        const object = await response.json()
-        toast({
-            description: object.msg,
-            duration: 4000,
-            isClosable: true,
-            position: 'bottom-right',
-        })
+        if (obj) {
+            setScreen('login')
+        }
     }
 
     return (

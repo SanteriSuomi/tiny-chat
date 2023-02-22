@@ -4,33 +4,27 @@ import {
     useColorMode,
     useColorModeValue,
     Spinner,
-    useToast,
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import Login from './screens/Login'
 import Register from './screens/Register'
 import Main from './screens/main/Main'
 import { UserData } from './types/user'
+import { infoToast } from './utils/toast'
+import fetchJson from './utils/fetch'
 
 function App() {
     const { toggleColorMode } = useColorMode()
     const formBackground = useColorModeValue('gray.100', 'gray.700')
-    const toast = useToast()
 
     const [screen, setScreen] = useState('')
     const [userData, setUserData] = useState<UserData | undefined>()
 
     const authenticate = async (data: UserData) => {
-        const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}users/authenticate`,
-            {
-                method: 'GET',
-                headers: {
-                    token: data.token,
-                },
-            }
-        )
-        if (!response.ok) {
+        const obj = await fetchJson('users/authenticate', 'GET', undefined, {
+            token: data.token,
+        })
+        if (!obj) {
             localStorage.setItem('login-data', '')
             return false
         }
@@ -41,12 +35,7 @@ function App() {
         localStorage.setItem('login-data', '')
         setUserData(undefined)
         setScreen('login')
-        toast({
-            description: 'User logged out',
-            duration: 4000,
-            isClosable: true,
-            position: 'bottom-right',
-        })
+        infoToast('User logged out')
     }
 
     useEffect(() => {
@@ -63,6 +52,7 @@ function App() {
         } else {
             setScreen('login')
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {

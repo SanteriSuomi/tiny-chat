@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import { RoomType } from '../../types/room'
 import Room from '../../components/Room'
 import RoomScreen from './Room'
+import fetchJson from '../../utils/fetch'
 
 interface MainProps {
     userData: UserData
@@ -31,92 +32,55 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
     const [activeRoom, setActiveRoom] = useState<RoomType | undefined>()
 
     const retrieveRooms = async () => {
-        const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}rooms`,
-            {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    token: userData.token,
-                },
-            }
-        )
-        const object = await response.json()
-        setRooms(object.content)
+        const obj = await fetchJson('rooms', 'GET', undefined, {
+            token: userData.token,
+        })
+        if (obj) {
+            setRooms(obj.content)
+        }
     }
 
     const joinRoom = async () => {
-        const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}rooms/participate`,
+        const obj = await fetchJson(
+            'rooms/participate',
+            'PUT',
+            { id: roomID },
             {
-                method: 'PUT',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    token: userData.token,
-                },
-                body: JSON.stringify({ id: roomID }),
-            }
+                token: userData.token,
+            },
+            toast
         )
-        if (response.ok) {
+        if (obj) {
             retrieveRooms()
         }
-        const object = await response.json()
-        toast({
-            description: object.msg,
-            duration: 4000,
-            isClosable: true,
-            position: 'bottom-right',
-        })
     }
 
     const createRoom = async () => {
-        const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}rooms/create`,
+        const obj = await fetchJson(
+            'rooms/create',
+            'POST',
+            { name: roomName },
             {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    token: userData.token,
-                },
-                body: JSON.stringify({ name: roomName }),
-            }
+                token: userData.token,
+            },
+            toast
         )
-        const object = await response.json()
-        toast({
-            description: object.msg,
-            duration: 4000,
-            isClosable: true,
-            position: 'bottom-right',
-        })
-        if (response.ok) {
+        if (obj) {
             retrieveRooms()
         }
     }
 
     const deleteRoom = async (room: RoomType) => {
-        const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}rooms/delete`,
+        const obj = await fetchJson(
+            'rooms/delete',
+            'DELETE',
+            { id: room._id },
             {
-                method: 'DELETE',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    token: userData.token,
-                },
-                body: JSON.stringify({ id: room._id }),
-            }
+                token: userData.token,
+            },
+            toast
         )
-        const object = await response.json()
-        toast({
-            description: object.msg,
-            duration: 4000,
-            isClosable: true,
-            position: 'bottom-right',
-        })
-        if (response.ok) {
+        if (obj) {
             retrieveRooms()
         }
     }
