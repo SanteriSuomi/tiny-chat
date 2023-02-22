@@ -28,8 +28,8 @@ Language: Typescript
 
 ## Screenshots
 
-[![screenshot_1](https://i.imgur.com/C5OFZpN.png)]
+[![screenshot_1](https://i.imgur.com/C5OFZpN.png)
 
-[![screenshot_1](https://i.imgur.com/3L4gMb5.png)]
+[![screenshot_1](https://i.imgur.com/3L4gMb5.png)
 
-[![screenshot_1](https://i.imgur.com/uPnlGds.png)]
+[![screenshot_1](https://i.imgur.com/uPnlGds.png)
