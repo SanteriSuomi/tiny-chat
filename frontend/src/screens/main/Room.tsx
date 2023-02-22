@@ -16,7 +16,7 @@ import { MessageType } from '../../types/message'
 import { Socket, io } from 'socket.io-client'
 import Message from '../../components/Message'
 import Participant from '../../components/Participant'
-import { RoomEnterEvent } from '../../types/events'
+import { RoomMessageDeleteEvent, RoomEnterEvent } from '../../types/events'
 import fetchJson from '../../utils/fetch'
 import { infoToast } from '../../utils/toast'
 
@@ -101,6 +101,18 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         }
     }
 
+    const deleteMessage = async (id: string) => {
+        await fetchJson(
+            `messages/delete`,
+            'DELETE',
+            { ids: [id] },
+            {
+                token: userData.token,
+            },
+            toast
+        )
+    }
+
     const onMessageReceived = (message: MessageType) => {
         setIncomingMessage(message)
     }
@@ -108,6 +120,22 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
     const onRoomEvent = (event: RoomEnterEvent, msg: string) => {
         if (event.name !== userData.name) {
             infoToast(`${event.name} ${msg}`, toast)
+        }
+    }
+
+    const onRoomDeleteMessage = (event: RoomMessageDeleteEvent) => {
+        const filtered = messages.filter((message) => {
+            return message._id !== event.id
+        })
+        if (filtered.length === 0) {
+            setMessages([
+                {
+                    message: 'No messages',
+                    timestamp: Date.now(),
+                },
+            ])
+        } else {
+            setMessages(filtered)
         }
     }
 
@@ -132,6 +160,10 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         socket.on(`${room._id}_leave`, (event) => {
             onRoomEvent(event, 'left the room')
         })
+        socket.on(`${room._id}_leave`, (event) => {
+            onRoomEvent(event, 'left the room')
+        })
+        socket.on(`${room._id}_message_delete`, onRoomDeleteMessage)
 
         socket.emit(`${room._id}_enter`, { name: userData.name })
 
@@ -182,14 +214,12 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                             direction="column"
                             alignItems="center"
                             height="100%"
-                            width="100%"
+                            width="65%"
                         >
                             <Flex
                                 height="100%"
                                 width="75%"
                                 direction="column"
-                                alignItems="flex-start"
-                                justifyContent="flex-start"
                                 overflowY="scroll"
                                 mt={3}
                                 ref={onMessagesRef}
@@ -197,9 +227,10 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
                                 {messages.map((message) => {
                                     return (
                                         <Message
-                                            key={message._id}
+                                            key={message._id ?? 0}
                                             message={message}
                                             userData={userData}
+                                            deleteMessage={deleteMessage}
                                         ></Message>
                                     )
                                 })}

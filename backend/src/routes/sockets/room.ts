@@ -1,7 +1,7 @@
 import { Socket, Server } from "socket.io"
 import { verify } from 'jsonwebtoken'
 import { RoomEnterEvent, RoomLeaveEvent, RoomMessageEvent } from '../../types/events'
-import { onRoomEnter, onRoomLeave, onRoomMessage } from '../../controllers/sockets/room'
+import { onRoomEnter, onRoomLeave, onRoomMessage, onRoomMessageDelete } from '../../controllers/sockets/room'
 
 async function onRoomSocketConnection(socket: Socket, io: Server) {
     const { token } = socket.handshake.headers
@@ -9,7 +9,7 @@ async function onRoomSocketConnection(socket: Socket, io: Server) {
         return socket.disconnect()
     }
 
-    verify(token as string, process.env.JWT_SECRET!, (err) => {
+    verify(token as string, process.env.JWT_SECRET!, (err, user) => {
         if (err) {
             return socket.disconnect()
         }
@@ -24,6 +24,11 @@ async function onRoomSocketConnection(socket: Socket, io: Server) {
         const leaveEvent = `${roomId}_leave`
         socket.on(leaveEvent, (event: RoomLeaveEvent) => {
             onRoomLeave(leaveEvent, event, socket)
+        })
+
+        const messageDeleteEvent = `${roomId}_message_delete`
+        socket.on(messageDeleteEvent, (event: RoomMessageEvent) => {
+            onRoomMessageDelete(messageDeleteEvent, event, socket)
         })
 
         const messageEvent = `${roomId}_message`

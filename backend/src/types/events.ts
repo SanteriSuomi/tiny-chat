@@ -14,8 +14,13 @@ interface RoomMessageEvent {
     timestamp: number
 }
 
+interface RoomMessageDeleteEvent {
+    id: string
+}
+
 export {
     RoomEnterEvent,
     RoomLeaveEvent,
-    RoomMessageEvent
+    RoomMessageEvent,
+    RoomMessageDeleteEvent
 }

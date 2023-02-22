@@ -5,6 +5,7 @@ import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 import usersRouter from './routes/users'
 import roomsRouter from './routes/rooms'
+import messagesRouter from './routes/messages'
 import roomSocket from './routes/sockets/room'
 import dotenv from 'dotenv'
 
@@ -32,6 +33,7 @@ async function main() {
 
     app.use('/users', usersRouter)
     app.use('/rooms', roomsRouter)
+    app.use('/messages', messagesRouter)
 
     io.on('connection', (socket) => {
         roomSocket(socket, io)
@@ -46,4 +48,9 @@ async function main() {
     });
 }
 
-main().catch(err => console.log(err));
+main().catch(err => console.log(err))
+
+export {
+    main,
+    io
+}

@@ -51,7 +51,7 @@ async function patchLoginUser(req: Request, res: Response) {
     }
 }
 
-async function getAuthorizeUser(req: Request, res: Response) {
+function getAuthorizeUser(req: Request, res: Response) {
     res.status(202).json({ msg: "User authenticated", content: req.body.user })
 }
 

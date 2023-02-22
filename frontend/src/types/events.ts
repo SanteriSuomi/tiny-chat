@@ -2,4 +2,8 @@ interface RoomEnterEvent {
     name: string
 }
 
-export type { RoomEnterEvent }
+interface RoomMessageDeleteEvent {
+    id: string
+}
+
+export type { RoomEnterEvent, RoomMessageDeleteEvent }
