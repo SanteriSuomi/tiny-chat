@@ -5,7 +5,9 @@ Tiny chat is a real-time room based chat application.
 ## Technology
 
 Backend: Node, Express, Socket.IO
+
 Frontend: React, Chakra UI
+
 Language: Typescript
 
 ## Running Locally
@@ -15,8 +17,11 @@ Language: Typescript
 3. Run npm install in both backend & frontend folders
 4. Make an .env file in the backend folder root and make the following entries:
    DB_CONNECTION_STRING=mongodb connection string here
+
    PORT=3001
+
    JWT_SECRET=any string
 5. Make an .env file in the frontend folder root and make the following entries:
    REACT_APP_BACKEND_URL=http://localhost:3001/
 6. Run npm run start in frontend folder and npm run dev in backend folder
+7. Navigate to localhost:3001 in a browser
