@@ -49,6 +49,9 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
     const [incomingMessage, setIncomingMessage] = useState<
         MessageType | undefined
     >()
+    const [deletedMessageID, setDeletedMessageID] = useState<
+        string | undefined
+    >()
     const [localMessage, setLocalMessage] = useState('')
 
     const onMessagesRef = useCallbackRef(
@@ -117,25 +120,13 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         setIncomingMessage(message)
     }
 
+    const onRoomDeleteMessage = (event: RoomMessageDeleteEvent) => {
+        setDeletedMessageID(event.id)
+    }
+
     const onRoomEvent = (event: RoomEnterEvent, msg: string) => {
         if (event.name !== userData.name) {
             infoToast(`${event.name} ${msg}`, toast)
-        }
-    }
-
-    const onRoomDeleteMessage = (event: RoomMessageDeleteEvent) => {
-        const filtered = messages.filter((message) => {
-            return message._id !== event.id
-        })
-        if (filtered.length === 0) {
-            setMessages([
-                {
-                    message: 'No messages',
-                    timestamp: Date.now(),
-                },
-            ])
-        } else {
-            setMessages(filtered)
         }
     }
 
@@ -154,16 +145,13 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         retrieveParticipants()
 
         socket.on(`${room._id}_message`, onMessageReceived)
+        socket.on(`${room._id}_message_delete`, onRoomDeleteMessage)
         socket.on(`${room._id}_enter`, (event) => {
             onRoomEvent(event, 'joined the room')
         })
         socket.on(`${room._id}_leave`, (event) => {
             onRoomEvent(event, 'left the room')
         })
-        socket.on(`${room._id}_leave`, (event) => {
-            onRoomEvent(event, 'left the room')
-        })
-        socket.on(`${room._id}_message_delete`, onRoomDeleteMessage)
 
         socket.emit(`${room._id}_enter`, { name: userData.name })
 
@@ -184,6 +172,25 @@ const Room: React.FC<RoomProps> = ({ userData, room, setActiveRoom }) => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [incomingMessage])
+
+    useEffect(() => {
+        if (deletedMessageID) {
+            const filtered = messages.filter((message) => {
+                return message._id !== deletedMessageID
+            })
+            if (filtered.length === 0) {
+                setMessages([
+                    {
+                        message: 'No messages',
+                        timestamp: Date.now(),
+                    },
+                ])
+            } else {
+                setMessages(filtered)
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [deletedMessageID])
 
     return (
         <>
