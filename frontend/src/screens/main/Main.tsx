@@ -168,7 +168,7 @@ const Main: React.FC<MainProps> = ({ userData, logout }) => {
     return (
         <Flex direction="column" width="80vw" height="75vh">
             <Flex alignItems="center" justifyContent="space-between">
-                <Heading size="md">Welcome to Tiny Chat!</Heading>
+                <Heading size="lg">Tiny Chat</Heading>
                 <Flex alignItems="center">
                     <Text mr={4} fontSize="xl">
                         {userData.name}
