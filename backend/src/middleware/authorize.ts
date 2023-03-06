@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express'
 import { verify } from 'jsonwebtoken'
 
 function authorize(req: Request, res: Response, next: NextFunction) {
